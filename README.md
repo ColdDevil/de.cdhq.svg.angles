@@ -3,6 +3,8 @@ de.cdhq.svg.angles
 
 Creates SVG files drawing a specified angle between two lines and an arc connecting them.
 
+For creating custom angles just change the [list of angles in CreateAngles.java](src/de/cdhq/svg/angles/CreateAngles.java#L36-43) and run its `main` method.
+
 + [Example of a 2° angle (SVG converted to PNG)](output/angle_2deg.png)
 + [Example of a 10° angle (SVG converted to PNG)](output/angle_10deg.png)
 + [Example of a 123° angle (SVG converted to PNG)](output/angle_123deg.png)
