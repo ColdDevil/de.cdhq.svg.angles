@@ -7,105 +7,68 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class DrawStuff {
+/**
+ * Creates SVG files drawing a specified angle between two lines and an arc connecting them.
+ * 
+ * @author Florian Weßling <flo@cdhq.de>
+ *
+ */
+public class CreateAngles {
+    // width and height of output images
+    private int                width     = 500;
+    private int                height    = 500;
 
-    int                width     = 500;
-    int                height    = 500;
+    // style of the lines
+    private String             lineStyle = "fill:none;stroke-width:1.7;stroke-linejoin:miter;stroke-miterlimit:100";           // stroke-linecap:round";
+    // style of the arc connecting the lines
+    private String             arcStyle  = "fill:none;stroke:black;stroke-width:1.4;stroke-miterlimit:4;stroke-dasharray:none";
 
-    String             lineStyle = "fill:none;stroke-width:1.7;stroke-linejoin:miter;stroke-miterlimit:100";            // stroke-linecap:round";
-    String             arcStyle  = "fill:none;stroke:black;stroke-width:1.4;stroke-miterlimit:4;stroke-dasharray:none";
-
-    ArrayList<Integer> angleList;
-
-    public DrawStuff() {
-        angleList = new ArrayList<Integer>();
-        angleList.add(60);
-        angleList.add(43);
-        angleList.add(59);
-        angleList.add(85);
-        angleList.add(91);
-
-        angleList.add(123);
-        angleList.add(18);
-        angleList.add(27);
-        angleList.add(48);
-        angleList.add(55);
-
-        angleList.add(77);
-        angleList.add(90);
-        angleList.add(10);
-        angleList.add(64);
-        angleList.add(100);
-
-        angleList.add(140);
-        angleList.add(210);
-        angleList.add(96);
-        angleList.add(39);
-        angleList.add(88);
-
-        angleList.add(180);
-        angleList.add(57);
-        angleList.add(35);
-        angleList.add(99);
-        angleList.add(245);
-
-        angleList.add(300);
-        angleList.add(66);
-        angleList.add(30);
-        angleList.add(40);
-        angleList.add(102);
-
-        angleList.add(85);
-        angleList.add(62);
-        angleList.add(50);
-        angleList.add(144);
-        angleList.add(200);
-
-        angleList.add(80);
-        angleList.add(20);
-        angleList.add(35);
-        angleList.add(60);
-
-        angleList.add(120);
-        angleList.add(77);
-        angleList.add(98);
-        angleList.add(160);
-
-        angleList.add(70);
-        angleList.add(48);
-        angleList.add(160);
-        angleList.add(50);
+    // list of angles to create
+    private ArrayList<Integer> angleList;
+    
+    public static void main(String[] args) {
+        (new CreateAngles()).start();
     }
 
+    public CreateAngles() {
+        // create several angles
+        angleList = new ArrayList<Integer>();
+        angleList.add(10);
+        angleList.add(90);
+        angleList.add(130);
+        angleList.add(123);
+        angleList.add(17);
+        angleList.add(2);
+        angleList.add(215);
+        angleList.add(306);
+    }
+    
     public void start() {
-
-        // "<text x=\"130\" y=\"118\" style=\"font-size:16px;font-style:italic;font-family:Computer Modern, Times New Roman\">r</text>";
-
         int radius = 50;
         int lineRadius = 200;
         Point center = new Point(width / 2, height / 2);
 
-        int i = 1;
+        // create image files
         for (Integer angle : angleList) {
-            String filename = "winkel" + (i < 10 ? "0" : "") + i + "_" + angle;
+            String filename = "angle_" + angle + "deg";
 
-            String content = "";
-            content += angle(center.x, center.y, radius, angle);
-            content += angleLines(center, lineRadius, angle, "black");
-            writeFile(wrap(content), "./output/" + filename + ".svg");
+            StringBuffer content = new StringBuffer();
+            content.append(angle(center.x, center.y, radius, angle));
+            content.append(angleLines(center, lineRadius, angle, "black"));
 
-            i++;
+            writeFile(wrap(content.toString()), "./output/" + filename + ".svg");
         }
     }
 
     public String angle(int centerX, int centerY, int radius, int angle) {
         Point arc2start = new Point(centerX + radius, centerY);
         Point arc2end = polarToCartesian(centerX, centerY, radius, 180 - angle);
+
         return arc(arc2start.x, arc2start.y, arc2end.x, arc2end.y, radius, angle > 180);
     }
 
     public String angleLines(Point center, int lineRadius, int angle, String col) {
-        Point a = new Point(center.x + lineRadius, center.y); //polarToCartesian(center.x, center.y, lineRadius, 180 - 0);
+        Point a = new Point(center.x + lineRadius, center.y);
         Point b = polarToCartesian(center.x, center.y, lineRadius, 180 - angle);
 
         return "<path d=\"M " + a.x + " " + a.y + " L " + center.x + " " + center.y + " L " + b.x + " " + b.y + " \" style=\"stroke:" + col + ";" + lineStyle + "\" />";
@@ -116,8 +79,7 @@ public class DrawStuff {
     }
 
     public String arc(int startX, int startY, int endX, int endY, int radius, boolean isLarge) {
-        String large = isLarge ? "1" : "0";
-        return "<path d=\"M " + startX + " " + startY + " A " + radius + " " + radius + " 0 " + large + " 0 " + endX + " " + endY + " \" style=\"" + arcStyle + "\" />";
+        return "<path d=\"M " + startX + " " + startY + " A " + radius + " " + radius + " 0 " + (isLarge ? "1" : "0") + " 0 " + endX + " " + endY + " \" style=\"" + arcStyle + "\" />";
     }
 
     public String dot(int x, int y) {
@@ -148,7 +110,7 @@ public class DrawStuff {
         double angleInRadians = angleInDegrees * Math.PI / 180.0d;
         double x = centerX - radius * Math.cos(angleInRadians);
         double y = centerY - radius * Math.sin(angleInRadians);
-        // System.out.println(x + "," + y);
+
         return new Point((new Double(x)).intValue(), (new Double(y)).intValue());
     }
 
@@ -162,7 +124,7 @@ public class DrawStuff {
         return output.toString();
     }
 
-    synchronized public void writeFile(String content, String filename) {
+    public void writeFile(String content, String filename) {
         File outputfile;
         FileWriter fw;
         BufferedWriter bw;
